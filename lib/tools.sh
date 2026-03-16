@@ -5,8 +5,8 @@ tools_menu() {
   echo " 扩展工具箱"
   echo "=============================="
   echo "1) Snell 状态 / 部署入口"
-  echo "2) Xray / Reality 状态入口"
-  echo "3) sing-box 状态入口"
+  echo "2) Xray / Reality（状态 / 安装 / 生成配置）"
+  echo "3) sing-box（状态 / 安装 / 生成配置）"
   echo "4) SOCKS5 代理（状态 / 安装 / 部署）"
   echo "5) Cloudflare Tunnel（状态 / 安装 / 快速开始）"
   echo "6) 扩展工具总览"
@@ -22,16 +22,36 @@ tools_menu() {
         [[ "$c" =~ ^[Yy]$ ]] && install_snell_placeholder
         return ;;
       2)
-        xray_status
-        echo
-        read -rp "是否尝试安装 Xray? [y/N] " c
-        [[ "$c" =~ ^[Yy]$ ]] && install_xray_placeholder
+        echo "--- Xray / Reality 菜单 ---"
+        echo "1) 查看状态"
+        echo "2) 安装 Xray"
+        echo "3) 生成 Reality 配置并启动"
+        echo "4) 查看 Xray 服务状态"
+        echo "0) 返回"
+        read -rp "请选择: " s
+        case "$s" in
+          1) xray_status ;;
+          2) install_xray ;;
+          3) generate_xray_reality_config ;;
+          4) show_xray_service ;;
+          *) ;;
+        esac
         return ;;
       3)
-        singbox_status
-        echo
-        read -rp "是否尝试安装 sing-box? [y/N] " c
-        [[ "$c" =~ ^[Yy]$ ]] && install_singbox_placeholder
+        echo "--- sing-box 菜单 ---"
+        echo "1) 查看状态"
+        echo "2) 安装 sing-box"
+        echo "3) 生成 SOCKS 配置并启动"
+        echo "4) 查看 sing-box 服务状态"
+        echo "0) 返回"
+        read -rp "请选择: " s
+        case "$s" in
+          1) singbox_status ;;
+          2) install_singbox ;;
+          3) generate_singbox_socks_config ;;
+          4) show_singbox_service ;;
+          *) ;;
+        esac
         return ;;
       4)
         echo "--- SOCKS5 菜单 ---"

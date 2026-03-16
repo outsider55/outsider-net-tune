@@ -2,6 +2,8 @@
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH:-}"
 MICROSOCKS_SERVICE="/etc/systemd/system/outsider-microsocks.service"
+XRAY_SERVICE="/etc/systemd/system/outsider-xray.service"
+SINGBOX_SERVICE="/etc/systemd/system/outsider-singbox.service"
 
 get_arch() {
   case "$(uname -m)" in
@@ -10,6 +12,14 @@ get_arch() {
     armv7l|armv7) echo "arm32-v7a" ;;
     *) echo "64" ;;
   esac
+}
+
+rand_b64() {
+  openssl rand -base64 16 | tr -d '\n='
+}
+
+rand_uuid() {
+  cat /proc/sys/kernel/random/uuid
 }
 
 install_microsocks() {
@@ -32,12 +42,10 @@ deploy_microsocks() {
   need_root || return 1
   install_microsocks || return 1
   local port user pass bind_ip
-  read -rp "请输入监听端口 [1080]: " port
-  port="${port:-1080}"
+  read -rp "请输入监听端口 [1080]: " port; port="${port:-1080}"
   read -rp "请输入用户名（留空则无认证）: " user
   if [[ -n "$user" ]]; then read -rsp "请输入密码: " pass; echo; else pass=""; fi
-  read -rp "请输入绑定地址 [0.0.0.0]: " bind_ip
-  bind_ip="${bind_ip:-0.0.0.0}"
+  read -rp "请输入绑定地址 [0.0.0.0]: " bind_ip; bind_ip="${bind_ip:-0.0.0.0}"
   backup_configs || true
   cat > "$MICROSOCKS_SERVICE" <<EOF
 [Unit]
@@ -131,17 +139,77 @@ install_xray() {
   mkdir -p /usr/local/share/xray /usr/local/etc/xray
   [[ -f "$tmpdir/geosite.dat" ]] && install -m 644 "$tmpdir/geosite.dat" /usr/local/share/xray/geosite.dat
   [[ -f "$tmpdir/geoip.dat" ]] && install -m 644 "$tmpdir/geoip.dat" /usr/local/share/xray/geoip.dat
-  if [[ ! -f /usr/local/etc/xray/config.json ]]; then
-    cat > /usr/local/etc/xray/config.json <<'EOF'
+  echo "Xray 安装成功"
+}
+
+generate_xray_reality_config() {
+  need_root || return 1
+  install_xray || return 1
+  local port uuid server_name short_id private_key public_key
+  read -rp "请输入监听端口 [443]: " port; port="${port:-443}"
+  read -rp "请输入伪装域名 [www.cloudflare.com]: " server_name; server_name="${server_name:-www.cloudflare.com}"
+  uuid="$(rand_uuid)"
+  short_id="$(openssl rand -hex 4)"
+  private_key="$([ -x /usr/local/bin/xray ] && /usr/local/bin/xray x25519 | awk '/Private key:/{print $3}')"
+  public_key="$([ -x /usr/local/bin/xray ] && /usr/local/bin/xray x25519 | awk '/Public key:/{print $3}')"
+  cat > /usr/local/etc/xray/config.json <<EOF
 {
   "log": {"loglevel": "warning"},
-  "inbounds": [],
+  "inbounds": [
+    {
+      "port": ${port},
+      "protocol": "vless",
+      "settings": {
+        "clients": [{"id": "${uuid}", "flow": "xtls-rprx-vision"}],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "dest": "${server_name}:443",
+          "xver": 0,
+          "serverNames": ["${server_name}"],
+          "privateKey": "${private_key}",
+          "shortIds": ["${short_id}"]
+        }
+      }
+    }
+  ],
   "outbounds": [{"protocol": "freedom", "settings": {}}]
 }
 EOF
+  cat > "$XRAY_SERVICE" <<EOF
+[Unit]
+Description=outsider-net-tune xray service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/xray run -config /usr/local/etc/xray/config.json
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  systemctl daemon-reload
+  systemctl enable --now outsider-xray.service
+  echo "Xray Reality 配置已生成并启动"
+  echo "UUID: ${uuid}"
+  echo "PublicKey: ${public_key}"
+  echo "SNI: ${server_name}"
+  echo "ShortID: ${short_id}"
+  echo "Port: ${port}"
+}
+
+show_xray_service() {
+  if systemctl list-unit-files | grep -q '^outsider-xray.service'; then
+    systemctl --no-pager --full status outsider-xray.service | sed -n '1,20p'
+  else
+    echo "未检测到 outsider-xray.service"
   fi
-  echo "Xray 安装成功"
-  echo "配置目录: /usr/local/etc/xray"
 }
 
 install_singbox() {
@@ -166,7 +234,59 @@ install_singbox() {
   install -m 755 "$bin" /usr/local/bin/sing-box
   mkdir -p /usr/local/etc/sing-box
   echo "sing-box 安装成功"
-  echo "配置目录: /usr/local/etc/sing-box"
+}
+
+generate_singbox_socks_config() {
+  need_root || return 1
+  install_singbox || return 1
+  local port user pass
+  read -rp "请输入 SOCKS 监听端口 [2080]: " port; port="${port:-2080}"
+  read -rp "请输入用户名 [outsider]: " user; user="${user:-outsider}"
+  read -rsp "请输入密码: " pass; echo
+  cat > /usr/local/etc/sing-box/config.json <<EOF
+{
+  "log": {"level": "warn"},
+  "inbounds": [
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "::",
+      "listen_port": ${port},
+      "users": [{"username": "${user}", "password": "${pass}"}]
+    }
+  ],
+  "outbounds": [
+    {"type": "direct", "tag": "direct"}
+  ]
+}
+EOF
+  cat > "$SINGBOX_SERVICE" <<EOF
+[Unit]
+Description=outsider-net-tune sing-box service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/sing-box run -c /usr/local/etc/sing-box/config.json
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  systemctl daemon-reload
+  systemctl enable --now outsider-singbox.service
+  echo "sing-box SOCKS 配置已生成并启动"
+  echo "端口: ${port}"
+  echo "用户名: ${user}"
+}
+
+show_singbox_service() {
+  if systemctl list-unit-files | grep -q '^outsider-singbox.service'; then
+    systemctl --no-pager --full status outsider-singbox.service | sed -n '1,20p'
+  else
+    echo "未检测到 outsider-singbox.service"
+  fi
 }
 
 install_xray_placeholder() { install_xray; }
