@@ -4,7 +4,7 @@ tools_menu() {
   echo "=============================="
   echo " 扩展工具箱"
   echo "=============================="
-  echo "1) Snell 状态 / 部署入口"
+  echo "1) Snell（状态 / 安装 / 生成配置）"
   echo "2) Xray / Reality（状态 / 安装 / 生成配置）"
   echo "3) sing-box（状态 / 安装 / 生成配置）"
   echo "4) SOCKS5 代理（状态 / 安装 / 部署）"
@@ -16,10 +16,20 @@ tools_menu() {
     read -rp "请选择: " t
     case "$t" in
       1)
-        snell_status
-        echo
-        read -rp "是否尝试安装 Snell? [y/N] " c
-        [[ "$c" =~ ^[Yy]$ ]] && install_snell_placeholder
+        echo "--- Snell 菜单 ---"
+        echo "1) 查看状态"
+        echo "2) 安装 Snell"
+        echo "3) 生成配置并启动"
+        echo "4) 查看 Snell 服务状态"
+        echo "0) 返回"
+        read -rp "请选择: " s
+        case "$s" in
+          1) snell_status ;;
+          2) install_snell ;;
+          3) generate_snell_config ;;
+          4) show_snell_service ;;
+          *) ;;
+        esac
         return ;;
       2)
         echo "--- Xray / Reality 菜单 ---"

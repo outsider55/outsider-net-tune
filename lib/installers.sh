@@ -4,37 +4,25 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH
 MICROSOCKS_SERVICE="/etc/systemd/system/outsider-microsocks.service"
 XRAY_SERVICE="/etc/systemd/system/outsider-xray.service"
 SINGBOX_SERVICE="/etc/systemd/system/outsider-singbox.service"
+SNELL_SERVICE="/etc/systemd/system/outsider-snell.service"
 
 get_arch() {
   case "$(uname -m)" in
-    x86_64|amd64) echo "64" ;;
-    aarch64|arm64) echo "arm64-v8a" ;;
-    armv7l|armv7) echo "arm32-v7a" ;;
-    *) echo "64" ;;
+    x86_64|amd64) echo "amd64" ;;
+    aarch64|arm64) echo "aarch64" ;;
+    armv7l|armv7) echo "armv7" ;;
+    *) echo "amd64" ;;
   esac
 }
 
-rand_b64() {
-  openssl rand -base64 16 | tr -d '\n='
-}
-
-rand_uuid() {
-  cat /proc/sys/kernel/random/uuid
-}
+rand_b64() { openssl rand -base64 16 | tr -d '\n='; }
+rand_uuid() { cat /proc/sys/kernel/random/uuid; }
 
 install_microsocks() {
   need_root || return 1
-  if command -v microsocks >/dev/null 2>&1; then
-    echo "microsocks 已安装: $(command -v microsocks)"
-    return 0
-  fi
+  if command -v microsocks >/dev/null 2>&1; then echo "microsocks 已安装: $(command -v microsocks)"; return 0; fi
   echo "开始安装 microsocks..."
-  if command -v apt >/dev/null 2>&1; then
-    apt update -y && apt install -y microsocks
-  else
-    echo "暂不支持当前系统的一键安装 microsocks"
-    return 1
-  fi
+  if command -v apt >/dev/null 2>&1; then apt update -y && apt install -y microsocks; else echo "暂不支持当前系统的一键安装 microsocks"; return 1; fi
   command -v microsocks >/dev/null 2>&1 && echo "microsocks 安装成功" || { echo "microsocks 安装失败"; return 1; }
 }
 
@@ -71,19 +59,12 @@ EOF
 }
 
 show_microsocks_service() {
-  if systemctl list-unit-files | grep -q '^outsider-microsocks.service'; then
-    systemctl --no-pager --full status outsider-microsocks.service | sed -n '1,20p'
-  else
-    echo "未检测到 outsider-microsocks.service"
-  fi
+  if systemctl list-unit-files | grep -q '^outsider-microsocks.service'; then systemctl --no-pager --full status outsider-microsocks.service | sed -n '1,20p'; else echo "未检测到 outsider-microsocks.service"; fi
 }
 
 install_cloudflared() {
   need_root || return 1
-  if command -v cloudflared >/dev/null 2>&1; then
-    echo "cloudflared 已安装: $(command -v cloudflared)"
-    return 0
-  fi
+  if command -v cloudflared >/dev/null 2>&1; then echo "cloudflared 已安装: $(command -v cloudflared)"; return 0; fi
   echo "开始安装 cloudflared..."
   local tmpdeb="/tmp/cloudflared-linux-amd64.deb"
   curl -fsSL -o "$tmpdeb" https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb || { echo "下载 cloudflared 失败"; return 1; }
@@ -111,12 +92,7 @@ EOF
 }
 
 show_cloudflared_status() {
-  if command -v cloudflared >/dev/null 2>&1; then
-    echo "cloudflared 已安装: $(command -v cloudflared)"
-    cloudflared --version | head -1
-  else
-    echo "未检测到 cloudflared"
-  fi
+  if command -v cloudflared >/dev/null 2>&1; then echo "cloudflared 已安装: $(command -v cloudflared)"; cloudflared --version | head -1; else echo "未检测到 cloudflared"; fi
 }
 
 install_xray() {
@@ -125,9 +101,9 @@ install_xray() {
   local arch url zip tmpdir
   arch="$(get_arch)"
   case "$arch" in
-    64) url="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip" ;;
-    arm64-v8a) url="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm64-v8a.zip" ;;
-    arm32-v7a) url="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm32-v7a.zip" ;;
+    amd64) url="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip" ;;
+    aarch64) url="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm64-v8a.zip" ;;
+    armv7) url="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-arm32-v7a.zip" ;;
     *) url="https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip" ;;
   esac
   zip="/tmp/xray.zip"; tmpdir="/tmp/xray-install"
@@ -145,38 +121,32 @@ install_xray() {
 generate_xray_reality_config() {
   need_root || return 1
   install_xray || return 1
-  local port uuid server_name short_id private_key public_key
+  local port uuid server_name short_id private_key
   read -rp "请输入监听端口 [443]: " port; port="${port:-443}"
   read -rp "请输入伪装域名 [www.cloudflare.com]: " server_name; server_name="${server_name:-www.cloudflare.com}"
   uuid="$(rand_uuid)"
   short_id="$(openssl rand -hex 4)"
-  private_key="$([ -x /usr/local/bin/xray ] && /usr/local/bin/xray x25519 | awk '/Private key:/{print $3}')"
-  public_key="$([ -x /usr/local/bin/xray ] && /usr/local/bin/xray x25519 | awk '/Public key:/{print $3}')"
+  private_key="$([ -x /usr/local/bin/xray ] && /usr/local/bin/xray x25519 | awk -F': ' '/PrivateKey|Private key/{print $2; exit}')"
   cat > /usr/local/etc/xray/config.json <<EOF
 {
   "log": {"loglevel": "warning"},
-  "inbounds": [
-    {
-      "port": ${port},
-      "protocol": "vless",
-      "settings": {
-        "clients": [{"id": "${uuid}", "flow": "xtls-rprx-vision"}],
-        "decryption": "none"
-      },
-      "streamSettings": {
-        "network": "tcp",
-        "security": "reality",
-        "realitySettings": {
-          "show": false,
-          "dest": "${server_name}:443",
-          "xver": 0,
-          "serverNames": ["${server_name}"],
-          "privateKey": "${private_key}",
-          "shortIds": ["${short_id}"]
-        }
+  "inbounds": [{
+    "port": ${port},
+    "protocol": "vless",
+    "settings": {"clients": [{"id": "${uuid}", "flow": "xtls-rprx-vision"}], "decryption": "none"},
+    "streamSettings": {
+      "network": "tcp",
+      "security": "reality",
+      "realitySettings": {
+        "show": false,
+        "dest": "${server_name}:443",
+        "xver": 0,
+        "serverNames": ["${server_name}"],
+        "privateKey": "${private_key}",
+        "shortIds": ["${short_id}"]
       }
     }
-  ],
+  }],
   "outbounds": [{"protocol": "freedom", "settings": {}}]
 }
 EOF
@@ -198,19 +168,13 @@ EOF
   systemctl enable --now outsider-xray.service
   echo "Xray Reality 配置已生成并启动"
   echo "UUID: ${uuid}"
-  echo "PublicKey: ${public_key}"
+  echo "PrivateKey: ${private_key}"
   echo "SNI: ${server_name}"
   echo "ShortID: ${short_id}"
   echo "Port: ${port}"
 }
 
-show_xray_service() {
-  if systemctl list-unit-files | grep -q '^outsider-xray.service'; then
-    systemctl --no-pager --full status outsider-xray.service | sed -n '1,20p'
-  else
-    echo "未检测到 outsider-xray.service"
-  fi
-}
+show_xray_service() { if systemctl list-unit-files | grep -q '^outsider-xray.service'; then systemctl --no-pager --full status outsider-xray.service | sed -n '1,20p'; else echo "未检测到 outsider-xray.service"; fi; }
 
 install_singbox() {
   need_root || return 1
@@ -246,18 +210,8 @@ generate_singbox_socks_config() {
   cat > /usr/local/etc/sing-box/config.json <<EOF
 {
   "log": {"level": "warn"},
-  "inbounds": [
-    {
-      "type": "socks",
-      "tag": "socks-in",
-      "listen": "::",
-      "listen_port": ${port},
-      "users": [{"username": "${user}", "password": "${pass}"}]
-    }
-  ],
-  "outbounds": [
-    {"type": "direct", "tag": "direct"}
-  ]
+  "inbounds": [{"type": "socks", "tag": "socks-in", "listen": "::", "listen_port": ${port}, "users": [{"username": "${user}", "password": "${pass}"}]}],
+  "outbounds": [{"type": "direct", "tag": "direct"}]
 }
 EOF
   cat > "$SINGBOX_SERVICE" <<EOF
@@ -281,14 +235,66 @@ EOF
   echo "用户名: ${user}"
 }
 
-show_singbox_service() {
-  if systemctl list-unit-files | grep -q '^outsider-singbox.service'; then
-    systemctl --no-pager --full status outsider-singbox.service | sed -n '1,20p'
-  else
-    echo "未检测到 outsider-singbox.service"
-  fi
+show_singbox_service() { if systemctl list-unit-files | grep -q '^outsider-singbox.service'; then systemctl --no-pager --full status outsider-singbox.service | sed -n '1,20p'; else echo "未检测到 outsider-singbox.service"; fi; }
+
+install_snell() {
+  need_root || return 1
+  if command -v snell-server >/dev/null 2>&1; then echo "snell-server 已安装: $(command -v snell-server)"; return 0; fi
+  local arch version url zip tmpdir bin
+  arch="$(get_arch)"
+  version="5.0.0"
+  case "$arch" in
+    amd64) url="https://dl.nssurge.com/snell/snell-server-${version}-linux-amd64.zip" ;;
+    aarch64) url="https://dl.nssurge.com/snell/snell-server-${version}-linux-aarch64.zip" ;;
+    *) echo "当前架构暂未适配 Snell 一键安装"; return 1 ;;
+  esac
+  zip="/tmp/snell.zip"; tmpdir="/tmp/snell-install"
+  rm -rf "$tmpdir" && mkdir -p "$tmpdir"
+  echo "开始安装 Snell..."
+  curl -fsSL -o "$zip" "$url" || { echo "下载 Snell 失败"; return 1; }
+  unzip -qo "$zip" -d "$tmpdir"
+  bin=$(find "$tmpdir" -type f -name 'snell-server' | head -1)
+  [[ -n "$bin" ]] || { echo "未找到 snell-server 二进制"; return 1; }
+  install -m 755 "$bin" /usr/local/bin/snell-server
+  mkdir -p /usr/local/etc/snell
+  echo "Snell 安装成功"
 }
 
+generate_snell_config() {
+  need_root || return 1
+  install_snell || return 1
+  local port psk ipv6
+  read -rp "请输入 Snell 监听端口 [6666]: " port; port="${port:-6666}"
+  psk="$(rand_b64)"
+  cat > /usr/local/etc/snell/snell-server.conf <<EOF
+[snell-server]
+listen = ::0:${port}
+psk = ${psk}
+ipv6 = true
+EOF
+  cat > "$SNELL_SERVICE" <<EOF
+[Unit]
+Description=outsider-net-tune snell service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/snell-server -c /usr/local/etc/snell/snell-server.conf
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  systemctl daemon-reload
+  systemctl enable --now outsider-snell.service
+  echo "Snell 配置已生成并启动"
+  echo "端口: ${port}"
+  echo "PSK: ${psk}"
+}
+
+show_snell_service() { if systemctl list-unit-files | grep -q '^outsider-snell.service'; then systemctl --no-pager --full status outsider-snell.service | sed -n '1,20p'; else echo "未检测到 outsider-snell.service"; fi; }
+
 install_xray_placeholder() { install_xray; }
-install_snell_placeholder() { echo "Snell 一键安装逻辑将在后续版本实现。"; }
+install_snell_placeholder() { install_snell; }
 install_singbox_placeholder() { install_singbox; }
