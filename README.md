@@ -93,7 +93,17 @@ bash main.sh mode auto
 
 ---
 
-## 快捷别名安装（规划可交付）
+## 在线一键安装
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/bootstrap.sh)
+```
+
+安装后运行：
+```bash
+bash ~/.outsider-net-tune/app/main.sh
+```
+
+## 快捷别名安装
 ```bash
 bash install-alias.sh
 source ~/.bashrc

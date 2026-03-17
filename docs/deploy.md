@@ -1,4 +1,4 @@
-# 交付与部署（草案）
+# 交付与部署
 
 ## 本地运行
 ```bash
@@ -14,12 +14,17 @@ source ~/.bashrc
 ont
 ```
 
-## 未来的一键安装命令（预留）
+## 在线一键安装（推荐）
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/bootstrap.sh)
 ```
 
-## 未来的别名安装命令（预留）
+安装完成后运行：
+```bash
+bash ~/.outsider-net-tune/app/main.sh
+```
+
+## 在线安装快捷命令（仓库直连）
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/install-alias.sh)
 source ~/.bashrc
