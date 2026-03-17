@@ -113,10 +113,16 @@ bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune
 bash ~/.outsider-net-tune/app/main.sh
 ```
 
-## 快捷别名安装
+## 快捷命令安装
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/install-alias.sh)
-source ~/.bashrc
+bash ~/.outsider-net-tune/app/install-alias.sh
+x
+```
+
+安装后支持：
+```bash
+x
+# 或
 X
 ```
 

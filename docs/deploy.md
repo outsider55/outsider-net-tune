@@ -7,11 +7,10 @@ bash install.sh
 bash main.sh
 ```
 
-## 快捷别名
+## 快捷命令
 ```bash
 bash install-alias.sh
-source ~/.bashrc
-X
+x
 ```
 
 ## 在线一键安装（推荐）
@@ -24,9 +23,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune
 bash ~/.outsider-net-tune/app/main.sh
 ```
 
-## 在线安装快捷命令（仓库直连）
+## 安装后启用快捷命令
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/install-alias.sh)
-source ~/.bashrc
-X
+bash ~/.outsider-net-tune/app/install-alias.sh
+x
 ```

@@ -59,7 +59,6 @@ echo
 echo "运行方式:"
 echo "  bash $INSTALL_BASE/app/main.sh"
 echo
-echo "如果你想安装快捷命令 X："
+echo "如果你想安装快捷命令 x / X："
 echo "  bash $INSTALL_BASE/app/install-alias.sh"
-echo "  source ~/.bashrc"
-echo "  X"
+echo "  然后直接输入: x"
