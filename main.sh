@@ -12,6 +12,7 @@ source "$BASE_DIR/lib/diagnose.sh"
 source "$BASE_DIR/lib/modes.sh"
 source "$BASE_DIR/lib/proxy_tools.sh"
 source "$BASE_DIR/lib/installers.sh"
+source "$BASE_DIR/lib/output.sh"
 source "$BASE_DIR/lib/tools.sh"
 
 show_menu() {

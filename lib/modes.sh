@@ -63,5 +63,6 @@ mode_auto_all() {
   echo "步骤 4/4: 输出最终诊断"
   echo "- 默认保持当前 IPv4/IPv6 策略不变"
   diagnose_all
+  show_post_opt_summary
   echo "[一键自动优化] 执行完成"
 }
