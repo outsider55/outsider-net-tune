@@ -172,6 +172,18 @@ EOF
   echo "SNI: ${server_name}"
   echo "ShortID: ${short_id}"
   echo "Port: ${port}"
+  echo
+  echo "客户端填写参考："
+  echo "协议: VLESS"
+  echo "地址: 你的服务器IP或域名"
+  echo "端口: ${port}"
+  echo "UUID: ${uuid}"
+  echo "传输: tcp"
+  echo "TLS: reality"
+  echo "SNI: ${server_name}"
+  echo "ShortID: ${short_id}"
+  echo "PrivateKey(服务端保存): ${private_key}"
+  echo "配置文件: /usr/local/etc/xray/config.json"
 }
 
 show_xray_service() { if systemctl list-unit-files | grep -q '^outsider-xray.service'; then systemctl --no-pager --full status outsider-xray.service | sed -n '1,20p'; else echo "未检测到 outsider-xray.service"; fi; }
@@ -233,6 +245,13 @@ EOF
   echo "sing-box SOCKS 配置已生成并启动"
   echo "端口: ${port}"
   echo "用户名: ${user}"
+  echo
+  echo "客户端连接参考："
+  echo "协议: SOCKS5"
+  echo "地址: 你的服务器IP"
+  echo "端口: ${port}"
+  echo "用户名: ${user}"
+  echo "配置文件: /usr/local/etc/sing-box/config.json"
 }
 
 show_singbox_service() { if systemctl list-unit-files | grep -q '^outsider-singbox.service'; then systemctl --no-pager --full status outsider-singbox.service | sed -n '1,20p'; else echo "未检测到 outsider-singbox.service"; fi; }
