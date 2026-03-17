@@ -60,5 +60,17 @@ selfcheck() {
 }
 
 update_project() {
-  echo "更新入口预留中：后续将支持从 GitHub 拉取最新版本并覆盖当前安装。"
+  local install_base target bootstrap_url
+  install_base="${INSTALL_BASE:-$HOME/.outsider-net-tune}"
+  target="$install_base/app"
+  bootstrap_url="https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/bootstrap.sh"
+
+  if [[ -d "$target" ]]; then
+    echo "开始更新 outsider-net-tune ..."
+    bash <(curl -fsSL "$bootstrap_url")
+    echo "更新完成"
+  else
+    echo "未检测到安装目录，改为首次安装"
+    bash <(curl -fsSL "$bootstrap_url")
+  fi
 }

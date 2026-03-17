@@ -14,6 +14,10 @@ log_warn() {
   printf '[%s] [WARN] %s\n' "$(date '+%F %T')" "$*"
 }
 
+pause_continue() {
+  read -rp "按回车继续..." _ || true
+}
+
 need_root() {
   if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
     echo "请使用 root 运行此命令"

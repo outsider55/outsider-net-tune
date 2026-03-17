@@ -18,13 +18,14 @@ x
 bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/bootstrap.sh)
 ```
 
-安装完成后运行：
+安装完成后可直接运行：
 ```bash
-bash ~/.outsider-net-tune/app/main.sh
+x
+# 或
+X
 ```
 
-## 安装后启用快捷命令
+也可以手动运行：
 ```bash
-bash ~/.outsider-net-tune/app/install-alias.sh
-x
+bash ~/.outsider-net-tune/app/main.sh
 ```

@@ -108,22 +108,16 @@ bash main.sh selfcheck
 bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/bootstrap.sh)
 ```
 
-安装后运行：
-```bash
-bash ~/.outsider-net-tune/app/main.sh
-```
-
-## 快捷命令安装
-```bash
-bash ~/.outsider-net-tune/app/install-alias.sh
-x
-```
-
-安装后支持：
+安装后可直接运行：
 ```bash
 x
 # 或
 X
+```
+
+也可以手动运行主脚本：
+```bash
+bash ~/.outsider-net-tune/app/main.sh
 ```
 
 ---

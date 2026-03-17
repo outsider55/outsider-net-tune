@@ -15,6 +15,7 @@ source "$BASE_DIR/lib/installers.sh"
 source "$BASE_DIR/lib/tools.sh"
 
 show_menu() {
+  clear 2>/dev/null || true
   show_banner
   echo " 1) 内核 / BBR 管理"
   echo " 2) TCP / 网络优化"
@@ -23,12 +24,14 @@ show_menu() {
   echo " 5) 备份与回滚"
   echo " 6) 场景优化模式"
   echo " 7) 扩展工具箱"
+  echo " 8) 项目帮助 / 自检 / 更新"
   echo "66) 一键自动优化"
   echo " 0) 退出"
   echo "========================================"
 }
 
 menu_bbr() {
+  clear 2>/dev/null || true
   echo "--- 内核 / BBR 管理 ---"
   echo "1) 查看 BBR 状态"
   echo "2) 尝试启用 BBR"
@@ -36,8 +39,8 @@ menu_bbr() {
   while true; do
     read -rp "请选择: " c
     case "$c" in
-      1) bbr_status; return ;;
-      2) bbr_enable; return ;;
+      1) bbr_status; pause_continue; return ;;
+      2) bbr_enable; pause_continue; return ;;
       0) return ;;
       *) echo "无效选择" ;;
     esac
@@ -45,6 +48,7 @@ menu_bbr() {
 }
 
 menu_net() {
+  clear 2>/dev/null || true
   echo "--- TCP / 网络优化 ---"
   echo "1) 预览优化参数"
   echo "2) 应用默认优化参数"
@@ -52,8 +56,8 @@ menu_net() {
   while true; do
     read -rp "请选择: " c
     case "$c" in
-      1) sysctl_preview; return ;;
-      2) sysctl_apply; return ;;
+      1) sysctl_preview; pause_continue; return ;;
+      2) sysctl_apply; pause_continue; return ;;
       0) return ;;
       *) echo "无效选择" ;;
     esac
@@ -61,6 +65,7 @@ menu_net() {
 }
 
 menu_ip() {
+  clear 2>/dev/null || true
   echo "--- DNS / IPv4 / IPv6 策略 ---"
   echo "1) IPv4 优先"
   echo "2) IPv6 / 默认优先"
@@ -72,21 +77,26 @@ menu_ip() {
   while true; do
     read -rp "请选择: " c
     case "$c" in
-      1) ipv4_prefer; return ;;
-      2) ipv6_prefer; return ;;
-      3) apply_dns_mode abroad; return ;;
-      4) apply_dns_mode cn; return ;;
-      5) apply_dns_mode restore; return ;;
-      6) show_dns_status; return ;;
+      1) ipv4_prefer; pause_continue; return ;;
+      2) ipv6_prefer; pause_continue; return ;;
+      3) apply_dns_mode abroad; pause_continue; return ;;
+      4) apply_dns_mode cn; pause_continue; return ;;
+      5) apply_dns_mode restore; pause_continue; return ;;
+      6) show_dns_status; pause_continue; return ;;
       0) return ;;
       *) echo "无效选择" ;;
     esac
   done
 }
 
-menu_diag() { diagnose_all; }
+menu_diag() {
+  clear 2>/dev/null || true
+  diagnose_all
+  pause_continue
+}
 
 menu_backup() {
+  clear 2>/dev/null || true
   echo "--- 备份与回滚 ---"
   echo "1) 立即备份"
   echo "2) 查看备份列表"
@@ -95,9 +105,9 @@ menu_backup() {
   while true; do
     read -rp "请选择: " c
     case "$c" in
-      1) backup_configs; return ;;
-      2) list_backups; return ;;
-      3) rollback_configs; return ;;
+      1) backup_configs; pause_continue; return ;;
+      2) list_backups; pause_continue; return ;;
+      3) rollback_configs; pause_continue; return ;;
       0) return ;;
       *) echo "无效选择" ;;
     esac
@@ -105,6 +115,7 @@ menu_backup() {
 }
 
 menu_modes() {
+  clear 2>/dev/null || true
   echo "--- 场景优化模式 ---"
   echo "1) 直连模式"
   echo "2) 落地模式"
@@ -114,10 +125,29 @@ menu_modes() {
   while true; do
     read -rp "请选择: " c
     case "$c" in
-      1) mode_direct; return ;;
-      2) mode_landing; return ;;
-      3) mode_relay; return ;;
-      4) mode_auto_all; return ;;
+      1) mode_direct; pause_continue; return ;;
+      2) mode_landing; pause_continue; return ;;
+      3) mode_relay; pause_continue; return ;;
+      4) mode_auto_all; pause_continue; return ;;
+      0) return ;;
+      *) echo "无效选择" ;;
+    esac
+  done
+}
+
+menu_project() {
+  clear 2>/dev/null || true
+  echo "--- 项目帮助 / 自检 / 更新 ---"
+  echo "1) 查看帮助"
+  echo "2) 项目自检"
+  echo "3) 更新项目（预留）"
+  echo "0) 返回"
+  while true; do
+    read -rp "请选择: " c
+    case "$c" in
+      1) show_help; pause_continue; return ;;
+      2) selfcheck; pause_continue; return ;;
+      3) update_project; pause_continue; return ;;
       0) return ;;
       *) echo "无效选择" ;;
     esac
@@ -135,12 +165,12 @@ handle_menu() {
       4) menu_diag ;;
       5) menu_backup ;;
       6) menu_modes ;;
-      7) tools_menu ;;
-      66) mode_auto_all ;;
+      7) tools_menu; pause_continue ;;
+      8) menu_project ;;
+      66) clear 2>/dev/null || true; mode_auto_all; pause_continue ;;
       0) exit 0 ;;
       *) echo "无效选择" ;;
     esac
-    echo
   done
 }
 

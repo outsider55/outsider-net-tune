@@ -52,13 +52,17 @@ mkdir -p "$INSTALL_BASE"
 mv "$TMP_DIR" "$INSTALL_BASE/app"
 chmod +x "$INSTALL_BASE/app"/*.sh "$INSTALL_BASE/app"/lib/*.sh 2>/dev/null || true
 
+# 默认顺手安装快捷命令，不再额外打扰用户
+if [ -f "$INSTALL_BASE/app/install-alias.sh" ]; then
+  bash "$INSTALL_BASE/app/install-alias.sh" >/dev/null 2>&1 || true
+fi
+
 echo
 echo "安装完成"
 echo "目录: $INSTALL_BASE/app"
 echo
 echo "运行方式:"
 echo "  bash $INSTALL_BASE/app/main.sh"
-echo
-echo "如果你想安装快捷命令 x / X："
-echo "  bash $INSTALL_BASE/app/install-alias.sh"
-echo "  然后直接输入: x"
+echo "或直接输入:"
+echo "  x"
+echo "  X"
