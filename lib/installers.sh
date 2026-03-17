@@ -53,9 +53,13 @@ EOF
   systemctl enable --now outsider-microsocks.service
   systemctl --no-pager --full status outsider-microsocks.service | sed -n '1,12p'
   echo
-  echo "SOCKS5 已部署完成"
-  echo "地址: ${bind_ip}:${port}"
-  [[ -n "$user" ]] && echo "认证: ${user} / ${pass}"
+  show_connection_summary "SOCKS5 部署完成" \
+    "服务" "outsider-microsocks.service" \
+    "地址" "${bind_ip}:${port}" \
+    "用户名" "${user:-无认证}" \
+    "二进制" "/usr/bin/microsocks"
+  [[ -n "$user" ]] && summary_line "密码" "$pass"
+  show_next_steps "使用 systemctl status outsider-microsocks.service 查看服务状态" "客户端按 SOCKS5 协议填写地址、端口、账号密码"
 }
 
 show_microsocks_service() {
@@ -70,7 +74,12 @@ install_cloudflared() {
   curl -fsSL -o "$tmpdeb" https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb || { echo "下载 cloudflared 失败"; return 1; }
   dpkg -i "$tmpdeb" || apt-get install -f -y
   rm -f "$tmpdeb"
-  command -v cloudflared >/dev/null 2>&1 && { echo "cloudflared 安装成功"; echo "下一步可执行: cloudflared tunnel login"; } || { echo "cloudflared 安装失败"; return 1; }
+  command -v cloudflared >/dev/null 2>&1 && {
+    show_connection_summary "cloudflared 安装完成" \
+      "二进制" "$(command -v cloudflared)" \
+      "来源" "Cloudflare 官方 release"
+    show_next_steps "执行 cloudflared tunnel login 登录 Cloudflare" "再创建 tunnel 并绑定域名"
+  } || { echo "cloudflared 安装失败"; return 1; }
 }
 
 cloudflared_quickstart() {
@@ -166,24 +175,16 @@ WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
   systemctl enable --now outsider-xray.service
-  echo "Xray Reality 配置已生成并启动"
-  echo "UUID: ${uuid}"
-  echo "PrivateKey: ${private_key}"
-  echo "SNI: ${server_name}"
-  echo "ShortID: ${short_id}"
-  echo "Port: ${port}"
-  echo
-  echo "客户端填写参考："
-  echo "协议: VLESS"
-  echo "地址: 你的服务器IP或域名"
-  echo "端口: ${port}"
-  echo "UUID: ${uuid}"
-  echo "传输: tcp"
-  echo "TLS: reality"
-  echo "SNI: ${server_name}"
-  echo "ShortID: ${short_id}"
-  echo "PrivateKey(服务端保存): ${private_key}"
-  echo "配置文件: /usr/local/etc/xray/config.json"
+  show_connection_summary "Xray Reality 已启动" \
+    "服务" "outsider-xray.service" \
+    "协议" "VLESS + Reality" \
+    "端口" "${port}" \
+    "UUID" "${uuid}" \
+    "SNI" "${server_name}" \
+    "ShortID" "${short_id}" \
+    "配置文件" "/usr/local/etc/xray/config.json"
+  summary_line "PrivateKey" "$private_key"
+  show_next_steps "客户端地址填写你的服务器 IP 或域名" "查看服务状态: systemctl status outsider-xray.service"
 }
 
 show_xray_service() { if systemctl list-unit-files | grep -q '^outsider-xray.service'; then systemctl --no-pager --full status outsider-xray.service | sed -n '1,20p'; else echo "未检测到 outsider-xray.service"; fi; }
@@ -242,16 +243,13 @@ WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
   systemctl enable --now outsider-singbox.service
-  echo "sing-box SOCKS 配置已生成并启动"
-  echo "端口: ${port}"
-  echo "用户名: ${user}"
-  echo
-  echo "客户端连接参考："
-  echo "协议: SOCKS5"
-  echo "地址: 你的服务器IP"
-  echo "端口: ${port}"
-  echo "用户名: ${user}"
-  echo "配置文件: /usr/local/etc/sing-box/config.json"
+  show_connection_summary "sing-box SOCKS 已启动" \
+    "服务" "outsider-singbox.service" \
+    "协议" "SOCKS5" \
+    "端口" "${port}" \
+    "用户名" "${user}" \
+    "配置文件" "/usr/local/etc/sing-box/config.json"
+  show_next_steps "客户端地址填写你的服务器 IP" "查看服务状态: systemctl status outsider-singbox.service"
 }
 
 show_singbox_service() { if systemctl list-unit-files | grep -q '^outsider-singbox.service'; then systemctl --no-pager --full status outsider-singbox.service | sed -n '1,20p'; else echo "未检测到 outsider-singbox.service"; fi; }
@@ -307,9 +305,13 @@ WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
   systemctl enable --now outsider-snell.service
-  echo "Snell 配置已生成并启动"
-  echo "端口: ${port}"
-  echo "PSK: ${psk}"
+  show_connection_summary "Snell 已启动" \
+    "服务" "outsider-snell.service" \
+    "协议" "Snell" \
+    "端口" "${port}" \
+    "PSK" "${psk}" \
+    "配置文件" "/usr/local/etc/snell/snell-server.conf"
+  show_next_steps "客户端地址填写你的服务器 IP" "查看服务状态: systemctl status outsider-snell.service"
 }
 
 show_snell_service() { if systemctl list-unit-files | grep -q '^outsider-snell.service'; then systemctl --no-pager --full status outsider-snell.service | sed -n '1,20p'; else echo "未检测到 outsider-snell.service"; fi; }

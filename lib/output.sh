@@ -23,3 +23,20 @@ show_post_opt_summary() {
   summary_line "TCP Fast Open" "$fastopen"
   summary_line "备份目录" "${HOME}/.outsider-net-tune/backups"
 }
+
+show_connection_summary() {
+  local title="$1"
+  shift
+  section "$title"
+  while [[ $# -gt 1 ]]; do
+    summary_line "$1" "$2"
+    shift 2
+  done
+}
+
+show_next_steps() {
+  section "下一步建议"
+  for line in "$@"; do
+    echo "- $line"
+  done
+}
