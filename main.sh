@@ -9,6 +9,7 @@ source "$BASE_DIR/lib/sysctl.sh"
 source "$BASE_DIR/lib/ipv46.sh"
 source "$BASE_DIR/lib/dns.sh"
 source "$BASE_DIR/lib/diagnose.sh"
+source "$BASE_DIR/lib/status.sh"
 source "$BASE_DIR/lib/modes.sh"
 source "$BASE_DIR/lib/proxy_tools.sh"
 source "$BASE_DIR/lib/installers.sh"
@@ -22,10 +23,11 @@ show_menu() {
   echo " 2) TCP / 网络优化"
   echo " 3) DNS / IPv4 / IPv6 策略"
   echo " 4) 系统与网络诊断"
-  echo " 5) 备份与回滚"
-  echo " 6) 场景优化模式"
-  echo " 7) 扩展工具箱"
-  echo " 8) 项目帮助 / 自检 / 更新"
+  echo " 5) 状态总览"
+  echo " 6) 备份与回滚"
+  echo " 7) 场景优化模式"
+  echo " 8) 扩展工具箱"
+  echo " 9) 项目帮助 / 自检 / 更新"
   echo "66) 一键自动优化"
   echo " 0) 退出"
   echo "========================================"
@@ -164,10 +166,11 @@ handle_menu() {
       2) menu_net ;;
       3) menu_ip ;;
       4) menu_diag ;;
-      5) menu_backup ;;
-      6) menu_modes ;;
-      7) tools_menu; pause_continue ;;
-      8) menu_project ;;
+      5) clear 2>/dev/null || true; status_dashboard; pause_continue ;;
+      6) menu_backup ;;
+      7) menu_modes ;;
+      8) tools_menu; pause_continue ;;
+      9) menu_project ;;
       66) clear 2>/dev/null || true; mode_auto_all; pause_continue ;;
       0) exit 0 ;;
       *) echo "无效选择" ;;
@@ -181,6 +184,7 @@ sub="${2:-}"
 case "$cmd" in
   menu) handle_menu ;;
   diagnose) diagnose_all ;;
+  status) status_dashboard ;;
   help|-h|--help) show_help ;;
   selfcheck) selfcheck ;;
   update) update_project ;;

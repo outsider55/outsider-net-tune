@@ -52,6 +52,7 @@
 
 ### 项目体验
 - `help` 帮助命令
+- `status` 状态总览
 - `selfcheck` 项目自检
 - `update` 更新入口
 - 在线安装脚本
@@ -105,6 +106,11 @@ x bbr enable
 ### 一键自动优化
 ```bash
 x mode auto
+```
+
+### 查看状态总览
+```bash
+x status
 ```
 
 ### 查看 DNS 状态

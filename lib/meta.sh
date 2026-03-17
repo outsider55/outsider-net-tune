@@ -23,6 +23,7 @@ outsider-net-tune v${PROJECT_VERSION}
   bash main.sh sysctl preview # 预览优化参数
   bash main.sh sysctl apply   # 应用优化参数
   bash main.sh dns status     # 查看 DNS 状态
+  bash main.sh status         # 查看状态总览
   bash main.sh mode auto      # 一键自动优化
   bash main.sh backups        # 查看备份列表
   bash main.sh rollback       # 回滚最近备份
