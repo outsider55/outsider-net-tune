@@ -54,7 +54,7 @@ chmod +x "$INSTALL_BASE/app"/*.sh "$INSTALL_BASE/app"/lib/*.sh 2>/dev/null || tr
 
 # 默认顺手安装快捷命令，不再额外打扰用户
 if [ -f "$INSTALL_BASE/app/install-alias.sh" ]; then
-  bash "$INSTALL_BASE/app/install-alias.sh" >/dev/null 2>&1 || true
+  bash "$INSTALL_BASE/app/install-alias.sh" >/tmp/outsider-net-tune-alias.log 2>&1 || true
 fi
 
 echo
@@ -66,3 +66,7 @@ echo "  bash $INSTALL_BASE/app/main.sh"
 echo "或直接输入:"
 echo "  x"
 echo "  X"
+if grep -q 'source ~/.bashrc' /tmp/outsider-net-tune-alias.log 2>/dev/null; then
+  echo
+  echo "提示：当前环境可能需要先执行 source ~/.bashrc 才能直接识别 x 命令"
+fi
