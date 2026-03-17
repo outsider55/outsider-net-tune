@@ -11,7 +11,7 @@ bash main.sh
 ```bash
 bash install-alias.sh
 source ~/.bashrc
-ont
+X
 ```
 
 ## 在线一键安装（推荐）
@@ -28,5 +28,5 @@ bash ~/.outsider-net-tune/app/main.sh
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/install-alias.sh)
 source ~/.bashrc
-ont
+X
 ```

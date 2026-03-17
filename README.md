@@ -117,7 +117,7 @@ bash ~/.outsider-net-tune/app/main.sh
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/install-alias.sh)
 source ~/.bashrc
-ont
+X
 ```
 
 ---

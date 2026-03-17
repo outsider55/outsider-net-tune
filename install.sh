@@ -11,6 +11,8 @@ outsider-net-tune 已初始化。
 推荐使用：
   bash main.sh
 
-也可以安装快捷别名：
+也可以安装快捷别名 X：
   bash install-alias.sh
+  source ~/.bashrc
+  X
 EOF
