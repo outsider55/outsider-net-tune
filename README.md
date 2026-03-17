@@ -1,5 +1,7 @@
 # outsider-net-tune
 
+> 版本：v0.7.0
+
 一个面向 VPS / 独服的**多功能网络优化与工具脚本**。
 
 它的目标不是只做 BBR，也不是做一个难以维护的超大脚本，
@@ -21,6 +23,11 @@
 `outsider-net-tune` 是一个：
 
 **多功能 VPS 网络优化与工具脚本平台**
+
+适合：
+- VPS 用户
+- 落地机 / 中转机 / 直连机场景
+- 喜欢一键优化与脚本运维的人
 
 ---
 
@@ -60,12 +67,11 @@
 - 一键自动优化
 
 ### 7. 扩展工具箱
-- Snell（预留）
-- Xray / Reality（预留）
-- sing-box（预留）
-- SOCKS5（预留）
-- Tunnel / 反代（预留）
-- AI 工具（预留）
+- Snell（安装 / 配置入口）
+- Xray / Reality（安装 / 配置入口）
+- sing-box（安装 / 配置入口）
+- SOCKS5（安装 / 部署入口）
+- Cloudflare Tunnel（安装 / 快速开始）
 
 ---
 
@@ -78,17 +84,21 @@ bash main.sh
 
 ### 命令模式
 ```bash
+bash main.sh help
 bash main.sh diagnose
 bash main.sh bbr status
 bash main.sh bbr enable
 bash main.sh sysctl preview
 bash main.sh sysctl apply
+bash main.sh dns status
 bash main.sh dns abroad
 bash main.sh dns cn
 bash main.sh dns restore
 bash main.sh backups
 bash main.sh rollback
 bash main.sh mode auto
+bash main.sh tools
+bash main.sh selfcheck
 ```
 
 ---
@@ -105,7 +115,7 @@ bash ~/.outsider-net-tune/app/main.sh
 
 ## 快捷别名安装
 ```bash
-bash install-alias.sh
+bash <(curl -fsSL https://raw.githubusercontent.com/outsider55/outsider-net-tune/main/install-alias.sh)
 source ~/.bashrc
 ont
 ```

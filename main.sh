@@ -3,6 +3,7 @@ set -euo pipefail
 
 BASE_DIR="$(cd -- "$(dirname -- "$0")" && pwd)"
 source "$BASE_DIR/lib/common.sh"
+source "$BASE_DIR/lib/meta.sh"
 source "$BASE_DIR/lib/bbr.sh"
 source "$BASE_DIR/lib/sysctl.sh"
 source "$BASE_DIR/lib/ipv46.sh"
@@ -14,10 +15,7 @@ source "$BASE_DIR/lib/installers.sh"
 source "$BASE_DIR/lib/tools.sh"
 
 show_menu() {
-  echo "========================================"
-  echo " outsider-net-tune"
-  echo " 多功能 VPS 网络优化与工具脚本"
-  echo "========================================"
+  show_banner
   echo " 1) 内核 / BBR 管理"
   echo " 2) TCP / 网络优化"
   echo " 3) DNS / IPv4 / IPv6 策略"
@@ -152,6 +150,9 @@ sub="${2:-}"
 case "$cmd" in
   menu) handle_menu ;;
   diagnose) diagnose_all ;;
+  help|-h|--help) show_help ;;
+  selfcheck) selfcheck ;;
+  update) update_project ;;
   backup) backup_configs ;;
   backups) list_backups ;;
   rollback) rollback_configs "${2:-}" ;;
