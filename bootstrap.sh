@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ZIP_URL="https://github.com/outsider55/outsider-net-tune/archive/refs/heads/main.zip"
+REPO_TGZ_URL="https://github.com/outsider55/outsider-net-tune/archive/refs/heads/main.tar.gz"
 INSTALL_BASE="${INSTALL_BASE:-$HOME/.outsider-net-tune}"
-TMP_ZIP="/tmp/outsider-net-tune-main.zip"
+TMP_TGZ="/tmp/outsider-net-tune-main.tar.gz"
 TMP_DIR="/tmp/outsider-net-tune-main"
 
 mkdir -p "$INSTALL_BASE"
-rm -rf "$TMP_DIR" "$TMP_ZIP"
+rm -rf "$TMP_DIR" "$TMP_TGZ"
 
 echo "下载 outsider-net-tune..."
-curl -fsSL -o "$TMP_ZIP" "$REPO_ZIP_URL"
+curl -fsSL -o "$TMP_TGZ" "$REPO_TGZ_URL"
 
-unzip -qo "$TMP_ZIP" -d /tmp
+tar -xzf "$TMP_TGZ" -C /tmp
 rm -rf "$INSTALL_BASE/app"
 mkdir -p "$INSTALL_BASE"
 mv "$TMP_DIR" "$INSTALL_BASE/app"
